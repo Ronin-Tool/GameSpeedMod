@@ -1,4 +1,5 @@
 name: Build GameSpeedMod
+
 on:
   push:
   workflow_dispatch:
@@ -6,29 +7,31 @@ on:
 jobs:
   build:
     runs-on: macos-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
-      - name: Set up Theos
+
+      - name: Set up Theos and SDKs
         run: |
           brew install dpkg ldid
-          sudo mkdir -p /opt/theos
           sudo git clone --depth 1 --recursive https://github.com/theos/theos.git /opt/theos
-          cd /opt/theos
-          sudo git pull
-          sudo chown -R $(id -u):$(id -g) /opt/theos
-          echo "THEOS=/opt/theos" >> $GITHUB_ENV
-          
+          sudo chown -R "$(id -u):$(id -g)" /opt/theos
+          git clone --depth 1 https://github.com/theos/sdks.git /opt/theos/sdks
+          echo "THEOS=/opt/theos" >> "$GITHUB_ENV"
+
       - name: Build dylib
         run: |
-          export THEOS=/opt/theos
           make clean
-          make
-          
-      - name: Upload artifact
+          make TARGET=iphone:clang:latest:13.0
+          mkdir -p dist
+          DYLIB="$(find .theos/obj -type f -name 'GameSpeedMod.dylib' -print -quit)"
+          test -n "$DYLIB" || { echo "ไม่พบ GameSpeedMod.dylib"; exit 1; }
+          cp "$DYLIB" dist/GameSpeedMod.dylib
+
+      - name: Upload dylib
         uses: actions/upload-artifact@v4
         with:
           name: GameSpeedMod-dylib
-          path: .theos/obj/GameSpeedMod.dylib
+          path: dist/GameSpeedMod.dylib
           retention-days: 30
