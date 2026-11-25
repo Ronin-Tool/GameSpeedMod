@@ -15,6 +15,8 @@ jobs:
           brew install dpkg ldid
           sudo mkdir -p /opt/theos
           sudo git clone --depth 1 --recursive https://github.com/theos/theos.git /opt/theos
+          cd /opt/theos
+          sudo git pull
           sudo chown -R $(id -u):$(id -g) /opt/theos
           echo "THEOS=/opt/theos" >> $GITHUB_ENV
           
