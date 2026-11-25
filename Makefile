@@ -1,5 +1,5 @@
 ARCHS = arm64 arm64e
-TARGET := iphone:clang:17.0:13.0
+TARGET := iphone:clang:latest:13.0
 INSTALL_TARGET_PROCESSES = duanzao
 
 include $(THEOS)/makefiles/common.mk
